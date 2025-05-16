@@ -52,6 +52,13 @@
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC # Execution Plan Example
+# MAGIC
+# MAGIC Let's apply filtering to see how the execution plan changes
+
+# COMMAND ----------
+
 df_sales_customers = spark.read.table("samples.bakehouse.sales_customers")
 df_sales_suppliers = spark.read.table("samples.bakehouse.sales_suppliers")
 df_sales_franchises = spark.read.table("samples.bakehouse.sales_franchises")
@@ -59,15 +66,14 @@ df_sales_transactions = spark.read.table("samples.bakehouse.sales_transactions")
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC # Execution plan example -> Filtering
-
-# COMMAND ----------
-
 from pyspark.sql import functions as F
 
 # Simple transformation: Select specific columns and filter rows
-df_sales_transactions_filtered = df_sales_transactions.select("transactionID", "totalPrice").filter(F.col("totalPrice") > 50)
+df_sales_transactions_filtered = (
+  df_sales_transactions
+  .select("transactionID", "totalPrice")
+  .filter(F.col("totalPrice") > 50)
+)
 
 # Execute an explain on the transformed DataFrame
 df_sales_transactions_filtered.explain(True)
@@ -87,7 +93,7 @@ df_sales_transactions_filtered.explain(True)
 
 from pyspark.sql import functions as F
 
-# Simple transformation: Select specific columns and filter rows
+# Update the query: add another filter transformation
 df_sales_transactions_filtered = (
     df_sales_transactions
     .select("transactionID", "totalPrice")
@@ -101,7 +107,7 @@ df_sales_transactions_filtered.explain(True)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC # Shuffle operations
+# MAGIC ## Shuffle operations and optimization
 # MAGIC
 # MAGIC A network-intensive operation where data gets redistributed (partitioned) across the cluster.
 # MAGIC - E.g., based on a key, like `customerID`

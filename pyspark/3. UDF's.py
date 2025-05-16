@@ -26,12 +26,17 @@
 
 # COMMAND ----------
 
-import pyspark.sql.functions as F
-import pyspark.sql.types as T
+# MAGIC %md
+# MAGIC ## Explore a simple UDF
+# MAGIC
+# MAGIC Calculate the square of a number `x^2`
 
 # COMMAND ----------
 
 # DBTITLE 1,Generate data
+import pyspark.sql.functions as F
+import pyspark.sql.types as T
+
 data = [(1,), (2,), (3,), (4,)]
 df = spark.createDataFrame(data, ["number"])
 
@@ -43,7 +48,10 @@ display(df)
 # COMMAND ----------
 
 # DBTITLE 1,Standard SQL / PySpark
-df.withColumn("squared", F.pow(F.col("number"), 2))
+display(
+    df
+    .withColumn("squared", F.pow(F.col("number"), 2))
+)
 
 # COMMAND ----------
 
@@ -58,7 +66,7 @@ def square(x):
 # Convert it into a UDF
 square_udf = F.udf(square, T.IntegerType())
 
-# Alternative way to define UDF
+# Alternative way to define UDF using decorators
 F.udf(T.IntegerType())
 def square_udf(x):
     return x * x
@@ -66,7 +74,8 @@ def square_udf(x):
 # COMMAND ----------
 
 display(
-    df.withColumn("squared", square_udf(F.col("number")))
+    df
+    .withColumn("squared", square_udf(F.col("number")))
 )
 
 # COMMAND ----------
@@ -114,12 +123,19 @@ display(df_sales_transactions.select("product", "paymentMethod", "concatenated")
 
 # COMMAND ----------
 
+# Create a DataFrame with 10 million rows
+number_of_rows = 10_000_000
+
 df = (
   spark
-  .range(0, 10_000_000)
-  .withColumn('id', (F.col('id') / 10000).cast('integer'))
-  .withColumn('v', F.rand()))
+  .range(0, number_of_rows)
+  .withColumn('v', F.rand())
+)
+
+# Cache the DataFrame to avoid recomputing
 df.cache()
+
+# Trigger the computation and caching
 df.count()
 
 # COMMAND ----------
@@ -128,6 +144,7 @@ display(df)
 
 # COMMAND ----------
 
+# DBTITLE 1,Define UDFs
 @F.udf(T.DoubleType())
 def plus_one(v):
     return v + 1
@@ -141,8 +158,17 @@ def standard_sql(df, col_name):
 
 # COMMAND ----------
 
-# DBTITLE 1,Python UDF
-# MAGIC %timeit df.withColumn('v', plus_one(df.v)).agg(F.count(F.col('v'))).collect()
+# MAGIC %md
+# MAGIC ## Time actually running the various UDFs
+# MAGIC
+# MAGIC ![](https://www.databricks.com/sites/default/files/2023-05/image1-4-og.png)
+# MAGIC
+# MAGIC Source: https://www.databricks.com/blog/2017/10/30/introducing-vectorized-udfs-for-pyspark.html
+
+# COMMAND ----------
+
+# DBTITLE 1,Standard SQL
+# MAGIC %timeit standard_sql(df, 'v').agg(F.count(F.col('v'))).collect()
 
 # COMMAND ----------
 
@@ -151,5 +177,5 @@ def standard_sql(df, col_name):
 
 # COMMAND ----------
 
-# DBTITLE 1,Standard SQL
-# MAGIC %timeit standard_sql(df, 'v').agg(F.count(F.col('v'))).collect()
+# DBTITLE 1,Python UDF
+# MAGIC %timeit df.withColumn('v', plus_one(df.v)).agg(F.count(F.col('v'))).collect()

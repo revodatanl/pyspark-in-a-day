@@ -89,57 +89,40 @@ df = spark.read.table("samples.bakehouse.sales_customers")
 
 # COMMAND ----------
 
+df = spark.read.table("samples.bakehouse.sales_customers")
+
+# COMMAND ----------
+
+display(df)
+
+# COMMAND ----------
+
+# DBTITLE 1,Create and alter data
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
-# COMMAND ----------
-
-df_sales_customers = spark.read.table("samples.bakehouse.sales_customers")
-
-# COMMAND ----------
-
-display(df_sales_customers)
-
-# COMMAND ----------
-
-# Define a Python function
-def replace_customer_id(customer_id):
-    return customer_id - 200000
-
-# Convert it into a UDF
-replace_customer_id_udf = F.udf(replace_customer_id, T.IntegerType())
-
-# COMMAND ----------
-
-# Apply UDF to DataFrame
-display(
-    df_sales_customers
-    .withColumn("customer_id_new", replace_customer_id_udf(df_sales_customers["customerID"]))
+# Applying transformations
+df_altered = (
+    df
+    .withColumn("full_name", F.concat(F.col("first_name"), F.lit(" "), F.col("last_name")))
+    .filter(F.col("state") == "Kentucky")
+    .drop("first_name", "last_name")
 )
+display(df_altered)
 
 # COMMAND ----------
 
-df_sales_suppliers = spark.read.table("samples.bakehouse.sales_suppliers")
-
-# COMMAND ----------
-
-display(df_sales_suppliers)
-
-# COMMAND ----------
-
-df_sales_franchises = spark.read.table("samples.bakehouse.sales_franchises")
-
-# COMMAND ----------
-
-display(df_sales_franchises)
-
-# COMMAND ----------
-
-df_sales_transactions = spark.read.table("samples.bakehouse.sales_transactions")
-
-# COMMAND ----------
-
-display(df_sales_transactions)
+# DBTITLE 1,Group by and aggregations
+# Applying other transformations
+df_transformed = (
+    df
+    .groupBy("state")
+    .agg(
+        F.count("*").alias("number_of_customers")
+    )
+    .orderBy(F.col("number_of_customers").desc())
+)
+display(df_transformed)
 
 # COMMAND ----------
 
@@ -152,3 +135,10 @@ display(df_sales_transactions)
 # MAGIC - `df_sales_franchises`
 # MAGIC - `df_sales_transactions`
 # MAGIC
+
+# COMMAND ----------
+
+df_sales_customers = spark.table("samples.bakehouse.sales_customers")
+df_sales_suppliers = spark.table("samples.bakehouse.sales_suppliers")
+df_sales_franchises = spark.table("samples.bakehouse.sales_franchises")
+df_sales_transactions = spark.table("samples.bakehouse.sales_transactions")
