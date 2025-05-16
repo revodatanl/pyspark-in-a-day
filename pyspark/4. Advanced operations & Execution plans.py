@@ -56,6 +56,8 @@
 # MAGIC # Execution Plan Example
 # MAGIC
 # MAGIC Let's apply filtering to see how the execution plan changes
+# MAGIC
+# MAGIC ![](https://miro.medium.com/v2/resize:fit:1024/1*ACkPOAQhqDFQnjWS38wFEQ.png)
 
 # COMMAND ----------
 
