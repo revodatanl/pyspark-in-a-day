@@ -53,6 +53,24 @@ display(df_customer)
 
 # COMMAND ----------
 
+# file_path = "/Volumes/path"
+
+# df_csv = (
+#     spark.read
+#     .format("csv")
+#     .option("header", True)
+#     .option("inferSchema", True)
+#     .load(file_path)
+# )
+# display(df_csv)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC # Reading from JSON
+
+# COMMAND ----------
+
 # volume_file_path = "/Volumes/path"
 
 # df_csv = (
@@ -67,21 +85,6 @@ display(df_customer)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC # Reading from JSON
-
-# COMMAND ----------
-
-# volume_file_path = "/Volumes/path"
-
-# df = (
-#     spark.read
-#     .format("json") 
-#     .load(volume_file_path)
-# )
-
-# COMMAND ----------
-
-# MAGIC %md
 # MAGIC Other file formats include
 # MAGIC - Parquet
 # MAGIC - Text
@@ -92,6 +95,9 @@ display(df_customer)
 
 # MAGIC %md
 # MAGIC # Custom connector
+# MAGIC
+# MAGIC - Spark has built-in connectors for common sources (like CSV, Parquet, Delta Lake, JDBC)
+# MAGIC - Sometimes you need a custom connector for more specialized access
 
 # COMMAND ----------
 
