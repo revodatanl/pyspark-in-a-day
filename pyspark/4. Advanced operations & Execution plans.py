@@ -78,7 +78,7 @@ df_sales_transactions_filtered.explain(True)
 # MAGIC | Stage                      | Purpose                                                                     | Key Characteristics                                                                                                           |
 # MAGIC | :------------------------- | :-------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
 # MAGIC | **Parsed Logical Plan**    | Converts your SQL / DataFrame API query into an abstract syntax tree (AST). | Table names and columns are **unresolved**. It’s just the **structure** of the query.                                         |
-# MAGIC | **Analyzed Logical Plan**  | Validates the plan against the catalog and schema.                          | **Resolves table names and column references**, assigns internal IDs, and checks for errors.                                  |
+# MAGIC | **Analyzed Logical Plan**  | Validates the plan against the catalog and schema.                          | **Resolves table names and column references**, assigns internal IDs, infers data types, and checks for errors.                                  |
 # MAGIC | **Optimized Logical Plan** | Applies rule-based optimizations on the logical plan.                       | Removes redundant operations, pushes filters down, prunes columns, simplifies expressions.                                    |
 # MAGIC | **Physical Plan**          | Converts the logical plan into an executable physical plan.                 | Specifies **how** to execute the query — using scans, joins, filters, shuffles, etc., including Photon or Tungsten execution. |
 # MAGIC
@@ -123,6 +123,10 @@ df_joined = (
 
 # COMMAND ----------
 
+df_joined.explain(True)
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC The execution plan states:
@@ -154,10 +158,6 @@ df_joined = (
 # MAGIC - Pre-partition your data by product if you do this kind of aggregation often.
 # MAGIC - Check for skew — if some products are overly common, you may get skewed partitions
 # MAGIC   - → Need to handle skewed joins or aggregations (e.g., salting techniques).
-
-# COMMAND ----------
-
-df_joined.explain(True)
 
 # COMMAND ----------
 
