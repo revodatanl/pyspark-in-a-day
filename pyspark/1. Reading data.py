@@ -1,5 +1,5 @@
 # Databricks notebook source
-# MAGIC % pip install faker
+# MAGIC %pip install faker
 
 # COMMAND ----------
 
@@ -28,10 +28,11 @@
 
 # COMMAND ----------
 
-# import all
+# not recommended
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
 
+# best practice
 import pyspark.sql.types as T
 import pyspark.sql.functions as F
 
@@ -49,35 +50,54 @@ display(df_customer)
 
 # MAGIC %md
 # MAGIC # Reading from CSV
-# MAGIC
-# MAGIC ```
-# MAGIC volume_file_path = "/Volumes/path"
-# MAGIC
-# MAGIC df_csv = (spark.read
-# MAGIC   .format("csv")
-# MAGIC   .option("header", True)
-# MAGIC   .option("inferSchema", True)
-# MAGIC   .load(volume_file_path)
-# MAGIC )
-# MAGIC display(df_csv)
-# MAGIC ```
-# MAGIC
-# MAGIC
-# MAGIC # Reading from JSON 
-# MAGIC
-# MAGIC ```
-# MAGIC volume_file_path = "/Volumes/path"
-# MAGIC df = spark.read
-# MAGIC   .format("json") 
-# MAGIC   .load(volume_file_path)
-# MAGIC ```
-# MAGIC
-# MAGIC # Etc....
+
+# COMMAND ----------
+
+# file_path = "/Volumes/path"
+
+# df_csv = (
+#     spark.read
+#     .format("csv")
+#     .option("header", True)
+#     .option("inferSchema", True)
+#     .load(file_path)
+# )
+# display(df_csv)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC # Reading from JSON
+
+# COMMAND ----------
+
+# volume_file_path = "/Volumes/path"
+
+# df_csv = (
+#     spark.read
+#     .format("csv")
+#     .option("header", True)
+#     .option("inferSchema", True)
+#     .load(volume_file_path)
+# )
+# display(df_csv)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Other file formats include
+# MAGIC - Parquet
+# MAGIC - Text
+# MAGIC - XML
+# MAGIC - ...
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC # Custom connector
+# MAGIC
+# MAGIC - Spark has built-in connectors for common sources (like CSV, Parquet, Delta Lake, JDBC)
+# MAGIC - Sometimes you need a custom connector for more specialized access
 
 # COMMAND ----------
 
@@ -118,6 +138,8 @@ class FakeDataSource(DataSource):
 
     def reader(self, schema: StructType):
         return FakeDataSourceReader(schema, self.options)
+
+# COMMAND ----------
 
 spark.dataSource.register(FakeDataSource)
 spark.read.format("fake").load().show()
